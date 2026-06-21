@@ -44,12 +44,14 @@ class CouncilClass(AbstractGetBinDataClass):
             date_str = c.get("CollectionDate", "")
             if not bin_type or not date_str:
                 continue
-            data["bins"].append({
-                "type": bin_type.title(),
-                "collectionDate": datetime.strptime(
-                    date_str, "%Y-%m-%d"
-                ).strftime(date_format),
-            })
+            data["bins"].append(
+                {
+                    "type": bin_type.title(),
+                    "collectionDate": datetime.strptime(
+                        date_str, "%Y-%m-%d"
+                    ).strftime(date_format),
+                }
+            )
 
         data["bins"].sort(
             key=lambda x: datetime.strptime(x["collectionDate"], date_format)
@@ -57,8 +59,11 @@ class CouncilClass(AbstractGetBinDataClass):
         return data
 
     def _resolve_premise(self, postcode, paon, uprn):
+        if uprn:
+            return uprn
+
         if not postcode:
-            raise ValueError("Postcode required for Fenland lookup")
+            raise ValueError("Postcode or UPRN required for Fenland lookup")
 
         response = requests.get(
             f"{self.API_BASE}/getaddress",
